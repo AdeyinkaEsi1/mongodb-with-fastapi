@@ -11,13 +11,20 @@ from typing_extensions import Annotated
 from bson import ObjectId
 import motor.motor_asyncio
 from pymongo import ReturnDocument
+# from dotenv import load_dotenv
+
+# Load environment variables from .env file
+# load_dotenv()
 
 
 app = FastAPI(
-    title="Student Course API",
+    title="Student Course% API",
     summary="A sample application showing how to use FastAPI to add a ReST API to a MongoDB collection.",
 )
-client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
+ 
+MONGODB_URL="mongodb+srv://Hamid:Hmongodb1@cluster0.zaaveoa.mongodb.net/?retryWrites=false&w=majority&appName=Cluster0"
+
+client = motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URL)
 db = client.college
 student_collection = db.get_collection("students")
 
@@ -33,12 +40,12 @@ class StudentModel(BaseModel):
 
     # The primary key for the StudentModel, stored as a `str` on the instance.
     # This will be aliased to `_id` when sent to MongoDB,
-    # but provided as `id` in the API requests and responses.
+    # but provided as `id` in the API requests and responses. 
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str = Field(...)
     email: EmailStr = Field(...)
     course: str = Field(...)
-    gpa: float = Field(..., le=4.0)
+    gpa: float = Field(..., le=5.0)
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -101,7 +108,7 @@ async def create_student(student: StudentModel = Body(...)):
     """
     new_student = await student_collection.insert_one(
         student.model_dump(by_alias=True, exclude=["id"])
-    )
+    )                                   
     created_student = await student_collection.find_one(
         {"_id": new_student.inserted_id}
     )
